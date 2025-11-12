@@ -5,6 +5,9 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <queue>
+#include <utility>
+
 using namespace std;
 
 template <typename T> string toStr(const T &value) {
@@ -12,6 +15,19 @@ template <typename T> string toStr(const T &value) {
   oss << value;
   return oss.str();
 }
+
+// Clase BinaryNode
+template <typename Comparable>
+class BinaryNode {
+public:
+    Comparable element; // Valor del nodo
+    BinaryNode *left;   // Puntero al hijo izquierdo
+    BinaryNode *right;  // Puntero al hijo derecho
+
+    BinaryNode(const Comparable &theElement, BinaryNode *lt = nullptr, BinaryNode *rt = nullptr)
+        : element(theElement), left(lt), right(rt) {}
+};
+
 
 // BinarySearchTree class
 //
@@ -42,7 +58,7 @@ public:
   BinarySearchTree(BinarySearchTree &&rhs) : root{rhs.root} {
     rhs.root = nullptr;
   }
-
+ 
   // Destructor for the tree
   ~BinarySearchTree() { makeEmpty(); }
 
@@ -113,23 +129,15 @@ public:
 
   string BFT() const {
     string st;
+    if(isEmpty())
+      cout << "Empty tree" << endl;
+    else
+      st = BTF(root);
     return st;
   }
 
-private:
-  struct BinaryNode {
-    Comparable element;
-    BinaryNode *left;
-    BinaryNode *right;
 
-    BinaryNode(const Comparable &theElement, BinaryNode *lt, BinaryNode *rt)
-        : element{theElement}, left{lt}, right{rt} {}
-
-    BinaryNode(Comparable &&theElement, BinaryNode *lt, BinaryNode *rt)
-        : element{std::move(theElement)}, left{lt}, right{rt} {}
-  };
-
-  BinaryNode *root;
+  
 
   /**
    * Internal method to insert into a subtree.
@@ -277,6 +285,31 @@ private:
     else
       return new BinaryNode{t->element, clone(t->left), clone(t->right)};
   }
+
+  //
+ string BFT(BinaryNode *t) const {
+    string result;
+    queue<BinaryNode*> q; // Cola para el recorrido en anchura
+    if (t != nullptr) {
+      q.push(t); // Comenzar desde la raíz
+      while (!q.empty()) {
+        BinaryNode* current = q.front();
+        q.pop();
+        result += toStr(current->element) + ","; // Agregar el elemento actual
+        // Agregar los hijos a la cola
+        if (current->left) {
+          q.push(current->left);
+        }
+        if (current->right) {
+          q.push(current->right);
+        }
+      }
+      if (!result.empty()) {
+        result.pop_back(); // Eliminar la última coma si hay elementos
+      }
+    }
+    return result;
+ }
 };
 
 #endif
